@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "gen": "node tools/gen-content.mjs",
+    "build": "node tools/build-all.mjs",
     "dev:cn": "node tools/gen-content.mjs && astro dev --port 4333",
     "dev:tw": "node tools/gen-content.mjs --tw && XIANMI_BLOG_TW=1 astro dev --port 4334",
     "build:cn": "node tools/gen-content.mjs && astro build && node tools/postbuild.mjs",
@@ -18,5 +19,8 @@
     "starlight-theme-large-print": "^0.5.1",
     "starlight-theme-large-print-font-noto-serif-sc": "^0.5.1",
     "starlight-theme-large-print-font-noto-serif-tc": "^0.5.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.138.0"
   }
 }

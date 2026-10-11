@@ -5,7 +5,7 @@
 ## 定位与 URL 契约（已定，勿改）
 
 - 独立 Astro + Starlight 站，独立 Worker 挂载：简体 `xianmi.co/blog/*`、繁体 `xianmi.co/zh-tw/blog/*`（先例 = `xianmi.co/starlight*` 挂主题 demo）。
-- 发布链路（未实施，publish 域）：推 GitHub → CF Workers Builds 自动部署，不进主站攒批。
+- 发布链路（**已上线 2026-10-12**）：首次 `npx wrangler deploy` 手动部署（publish 执行），四条路由已挂（见下「部署」节）；CF Workers Builds 待用户 dashboard 向导铸 token 后收尾。
 - **简繁方案 b**：单仓双 build。`XIANMI_BLOG_TW=1` 切繁体（内容/字体/语言），`XIANMI_BLOG_BASE=/zh-tw` 只在繁体**构建**时设（dev 恒 base='/'）。
 
 ## 技术栈与关键裁决
@@ -26,6 +26,14 @@
 - `npm run dev:cn` / `dev:tw`：dev 端口 **4333（简）/ 4334（繁）**（4331/4332 是预览对，勿占）。
 - `npm run build:cn` / `build:tw`：gen-content → astro build → postbuild 全链。
 - `npm run gen` / `node tools/gen-content.mjs --tw`：只重新生成内容。
+- `npm run build`：合并构建（`tools/build-all.mjs`）——build:cn → 暂存 → build:tw → 合并出单一 `dist/`（简体 `dist/blog/*` + 繁体 `dist/zh-tw/blog/*` + 根 `404.html`）。这是 CF Builds 的 build command。
+
+## 部署（publish 域）
+
+- **产物形态**：单 Worker `xianmi-blog`，静态 assets = 合并 `dist/`（248 文件量级）；`wrangler.jsonc` 在本仓，`not_found_handling: "404-page"`（根 `404.html` 来自简体 build；繁体 404 无独立槽位，已裁决接受）。
+- **路由（2026-10-12 已挂）**：`www.xianmi.co/blog*`、`xianmi.co/blog*`、`www.xianmi.co/zh-tw/blog*`、`xianmi.co/zh-tw/blog*`（星号形态兼捕裸路径；「更具体者优先」压过主站 /* 与 /zh-tw/*，主站零改动；裸域 naked→www 301 在路由前生效）。
+- **首发**：2026-10-12 publish 手动 `npx wrangler deploy`（Version ID 515a4538），线上验证全绿（证据 `~/xianmi-evidence/blog-deploy-20261012/`）。
+- **CF Workers Builds（收尾中）**：repo connection 已建（`xianmi-lib/xianmi-blog`，CLI upsert）；build token CLI 铸不了（与主题仓 10-05 同坑），待用户 dashboard Builds 向导铸 `xianmi-blog build token` 并建配置，之后 CLI 校 path_includes + 查 external_script_id 唯一 + 建 manual-retrigger deploy hook。Builds 接管后**唯一部署通道 = push main**，本地 deploy 退役禁双轨（同主题仓纪律）。
 
 ## 内容生产（copy worker 是生产 owner）
 
@@ -46,7 +54,7 @@
 
 ## 待办（归属）
 
-- CF 路由挂载 + Workers Builds 配置（publish 域，原型验收过后再派）。
-- GitHub 建仓/推送（`xianmi-lib/xianmi-blog`，公开仓）等 main 通知。
+- ~~CF 路由挂载~~（2026-10-12 完成）；CF Workers Builds 收尾（publish 域）——等用户 dashboard 向导铸 build token。
+- GitHub 仓已建已推（`xianmi-lib/xianmi-blog`，公开仓）。
 - og:image 暂借主站 `/og.png`；博客专有 og 图可后补。cooler-credit 赞助卡可后补。
-- blog worker 的 404 落地页（`dist/404.html` 在 dist 根，不在 /blog/* 路由内，须 Worker not_found 方案）。
+- ~~blog worker 的 404 落地页~~（2026-10-12 解决：`not_found_handling: "404-page"`，未命中 /blog/* 路径回根 404.html 简体页）。
