@@ -8,6 +8,9 @@ const SITE = 'https://www.xianmi.co';
 export const onRequest = defineRouteMiddleware((context) => {
 	const { starlightRoute } = context.locals;
 	const path = context.url.pathname;
+	// 标签/作者索引页简繁 URL 天然不对称（slug=标签原文：站点故事≠站點故事），
+	// 前缀互换会得到 404——这类页跳过 hreflang（文章页 slug=文件名，简繁严格配对不受影响）。
+	if (/\/(tags|authors)\//.test(path)) return;
 	const isTw = path.startsWith('/zh-tw/');
 	const cnPath = isTw ? path.replace(/^\/zh-tw/, '') : path;
 	const twPath = `/zh-tw${cnPath}`;

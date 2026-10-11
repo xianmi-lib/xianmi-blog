@@ -66,15 +66,18 @@ export default defineConfig({
 		sitemap({
 			serialize(item) {
 				const path = new URL(item.url).pathname;
-				const isTwPath = path.startsWith('/zh-tw/');
-				const cnPath = isTwPath ? path.replace(/^\/zh-tw/, '') : path;
-				const twPath = `/zh-tw${cnPath}`;
-				item.links = [
-					{ lang: 'zh-Hans', url: `${SITE}${cnPath}` },
-					{ lang: 'zh-Hant', url: `${SITE}${twPath}` },
-					// x-default 指繁体版（与主站 2026-09-28 裁决一致）
-					{ lang: 'x-default', url: `${SITE}${twPath}` },
-				];
+				// 同 routeData.ts：标签/作者索引页不做简繁配对（slug=标签原文，简繁 URL 天然不对称）
+				if (!/\/(tags|authors)\//.test(path)) {
+					const isTwPath = path.startsWith('/zh-tw/');
+					const cnPath = isTwPath ? path.replace(/^\/zh-tw/, '') : path;
+					const twPath = `/zh-tw${cnPath}`;
+					item.links = [
+						{ lang: 'zh-Hans', url: `${SITE}${cnPath}` },
+						{ lang: 'zh-Hant', url: `${SITE}${twPath}` },
+						// x-default 指繁体版（与主站 2026-09-28 裁决一致）
+						{ lang: 'x-default', url: `${SITE}${twPath}` },
+					];
+				}
 				return item;
 			},
 		}),

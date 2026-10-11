@@ -18,8 +18,5 @@
     "starlight-theme-large-print": "^0.5.1",
     "starlight-theme-large-print-font-noto-serif-sc": "^0.5.1",
     "starlight-theme-large-print-font-noto-serif-tc": "^0.5.1"
-  },
-  "devDependencies": {
-    "opencc-js": "^1.0.7"
   }
 }
