@@ -1,0 +1,25 @@
+{
+  "name": "xianmi-blog",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "gen": "node tools/gen-content.mjs",
+    "dev:cn": "node tools/gen-content.mjs && astro dev --port 4333",
+    "dev:tw": "node tools/gen-content.mjs --tw && XIANMI_BLOG_TW=1 astro dev --port 4334",
+    "build:cn": "node tools/gen-content.mjs && astro build && node tools/postbuild.mjs",
+    "build:tw": "node tools/gen-content.mjs --tw && XIANMI_BLOG_TW=1 XIANMI_BLOG_BASE=/zh-tw astro build && XIANMI_BLOG_TW=1 node tools/postbuild.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/starlight": "^0.42.0",
+    "astro": "^7.3.1",
+    "starlight-blog": "^0.30.0",
+    "starlight-theme-large-print": "^0.5.1",
+    "starlight-theme-large-print-font-noto-serif-sc": "^0.5.1",
+    "starlight-theme-large-print-font-noto-serif-tc": "^0.5.1"
+  },
+  "devDependencies": {
+    "opencc-js": "^1.0.7"
+  }
+}

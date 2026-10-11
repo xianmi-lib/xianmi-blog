@@ -1,0 +1,91 @@
+---
+// 博客页首：站点名 + 返回文库 + 社交图标 + 适老主题控件（排版下拉 + 外观下拉，
+// 取代 Starlight 原生 ThemeSelect——勿同渲染，storage 语义见主题组件头注释）。
+// 简繁文案按 Starlight root locale 的 label 判定（dev/build 均可靠，不依赖 BASE_URL）。
+import config from 'virtual:starlight/user-config';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import AppearanceSelect from 'starlight-theme-large-print/components/AppearanceSelect.astro';
+import TypographyDropdown from 'starlight-theme-large-print/components/TypographyDropdown.astro';
+
+const isTw = config.locales?.root?.label === '繁體中文';
+const backLabel = isTw ? '返回文庫' : '返回文库';
+// 返回文库指主站（另一 Worker）：简体 → 主站首页；繁体 → 主站 /zh-tw/
+const libHref = isTw ? 'https://www.xianmi.co/zh-tw/' : 'https://www.xianmi.co/';
+---
+
+<div class="header">
+	<div class="title-wrapper sl-flex">
+		<SiteTitle />
+	</div>
+	{/* 移动端「返回文库」：给 fixed 汉堡让位（margin-inline-end 同主站 lang-link 工艺） */}
+	<a class="back-link back-link-mobile sl-flex md:sl-hidden print:hidden" href={libHref}>{backLabel}</a>
+	<div class="sl-hidden md:sl-flex print:hidden right-group">
+		<a class="back-link" href={libHref}>{backLabel}</a>
+		<div class="sl-flex social-icons">
+			<SocialIcons />
+		</div>
+		<TypographyDropdown />
+		<AppearanceSelect />
+	</div>
+</div>
+
+<style>
+	@layer starlight.core {
+		.header {
+			display: flex;
+			gap: var(--sl-nav-gap);
+			justify-content: space-between;
+			align-items: center;
+			height: 100%;
+		}
+
+		.title-wrapper {
+			overflow: clip;
+			padding: 0.25rem;
+			margin: -0.25rem;
+			min-width: 0;
+		}
+
+		.right-group,
+		.social-icons {
+			gap: 1rem;
+			align-items: center;
+		}
+		.social-icons::after {
+			content: '';
+			height: 2rem;
+			border-inline-end: 1px solid var(--sl-color-gray-5);
+		}
+
+		.back-link {
+			color: var(--sl-color-gray-1);
+			font-size: var(--sl-text-sm);
+			text-decoration: none;
+			white-space: nowrap;
+			padding: 0.5rem;
+			margin: -0.5rem;
+		}
+		.back-link:hover {
+			color: var(--sl-color-accent-high);
+		}
+		.back-link-mobile {
+			margin-inline-end: calc(var(--sl-menu-button-size) + var(--sl-nav-pad-x) + 0.25rem);
+		}
+
+		/* 下拉族与社交图标的字形节奏（右组内间距） */
+		.right-group :global(lp-typography),
+		.right-group :global(lp-appearance) {
+			margin-inline-start: 0.25rem;
+		}
+
+		@media (min-width: 50rem) {
+			.header {
+				--__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
+				display: grid;
+				grid-template-columns: minmax(0rem, auto) 1fr auto;
+				align-content: center;
+			}
+		}
+	}
+</style>
