@@ -5,7 +5,7 @@
 ## 定位与 URL 契约（已定，勿改）
 
 - 独立 Astro + Starlight 站，独立 Worker 挂载：简体 `xianmi.co/blog/*`、繁体 `xianmi.co/zh-tw/blog/*`（先例 = `xianmi.co/starlight*` 挂主题 demo）。
-- 发布链路（**已上线 2026-10-12**）：首次 `npx wrangler deploy` 手动部署（publish 执行），四条路由已挂（见下「部署」节）；CF Workers Builds 待用户 dashboard 向导铸 token 后收尾。
+- 发布链路（**已上线 2026-10-12**）：push main → CF Workers Builds 自动 build+deploy，不进主站攒批；配置与纪律见下「部署」节。
 - **简繁方案 b**：单仓双 build。`XIANMI_BLOG_TW=1` 切繁体（内容/字体/语言），`XIANMI_BLOG_BASE=/zh-tw` 只在繁体**构建**时设（dev 恒 base='/'）。
 
 ## 技术栈与关键裁决
@@ -33,7 +33,8 @@
 - **产物形态**：单 Worker `xianmi-blog`，静态 assets = 合并 `dist/`（248 文件量级）；`wrangler.jsonc` 在本仓，`not_found_handling: "404-page"`（根 `404.html` 来自简体 build；繁体 404 无独立槽位，已裁决接受）。
 - **路由（2026-10-12 已挂）**：`www.xianmi.co/blog*`、`xianmi.co/blog*`、`www.xianmi.co/zh-tw/blog*`、`xianmi.co/zh-tw/blog*`（星号形态兼捕裸路径；「更具体者优先」压过主站 /* 与 /zh-tw/*，主站零改动；裸域 naked→www 301 在路由前生效）。
 - **首发**：2026-10-12 publish 手动 `npx wrangler deploy`（Version ID 515a4538），线上验证全绿（证据 `~/xianmi-evidence/blog-deploy-20261012/`）。
-- **CF Workers Builds（收尾中）**：repo connection 已建（`xianmi-lib/xianmi-blog`，CLI upsert）；build token CLI 铸不了（与主题仓 10-05 同坑），待用户 dashboard Builds 向导铸 `xianmi-blog build token` 并建配置，之后 CLI 校 path_includes + 查 external_script_id 唯一 + 建 manual-retrigger deploy hook。Builds 接管后**唯一部署通道 = push main**，本地 deploy 退役禁双轨（同主题仓纪律）。
+- **CF Workers Builds（2026-10-12 接通，唯一部署通道）**：push 到 `main` 且触及 watch paths 即云端 build+deploy（**本地 `npx wrangler deploy` 退役，禁双轨**）。配置：root directory=`/`（仓库根，已实证可用）、build=`npm run build`、deploy=`npx wrangler deploy`、branch=`main`、previews 关、构建缓存开；trigger `6b34d0ce-1e6b-4da4-9a2c-0ffcb4ed3641`（external_script_id=worker id `eb839681b4994cb795db9e2d30edae0a`），path_includes=`posts/*`、`src/*`、`tools/*`、`astro.config.mjs`、`package.json`、`package-lock.json`、`wrangler.jsonc`（文档/AGENTS 改动不触发）；build token=`xianmi-blog build token`（UUID `e20a601e-9c0b-4d7e-b987-338857efb217`，dashboard 向导铸，值不落文件）。**只保留一条构建配置**——改 Builds 配置后必查 `cf builds triggers list --external-script-id eb839681b4994cb795db9e2d30edae0a` 仍只有一条（10-05 主题仓双配置事故教训）。
+- **手动重触（免 push）**：deploy hook `cf builds deploy-hooks trigger 09375596-e43d-4a51-a170-475ed600b301`（名 `manual-retrigger`，branch=main）；`cf builds create` 有 12002 缺陷勿用。云端 build+deploy 全程约 36 秒（2026-10-12 实测，产物 248 文件）。
 
 ## 内容生产（copy worker 是生产 owner）
 
@@ -54,7 +55,7 @@
 
 ## 待办（归属）
 
-- ~~CF 路由挂载~~（2026-10-12 完成）；CF Workers Builds 收尾（publish 域）——等用户 dashboard 向导铸 build token。
+- ~~CF 路由挂载 + CF Workers Builds~~（2026-10-12 全部完成，见「部署」节）。
 - GitHub 仓已建已推（`xianmi-lib/xianmi-blog`，公开仓）。
 - og:image 暂借主站 `/og.png`；博客专有 og 图可后补。cooler-credit 赞助卡可后补。
 - ~~blog worker 的 404 落地页~~（2026-10-12 解决：`not_found_handling: "404-page"`，未命中 /blog/* 路径回根 404.html 简体页）。
