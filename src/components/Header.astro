@@ -1,17 +1,52 @@
 ---
-// 博客页首：站点名 + 返回文库 + 社交图标 + 适老主题控件（排版下拉 + 外观下拉，
+// 博客页首：站点名 + 返回文库 + 社交图标 + 简繁语言切换 + 适老主题控件（排版下拉 + 外观下拉，
 // 取代 Starlight 原生 ThemeSelect——勿同渲染，storage 语义见主题组件头注释）。
-// 简繁文案按 Starlight root locale 的 label 判定（dev/build 均可靠，不依赖 BASE_URL）。
+// 简繁文案按 Starlight 处理后 config 的 defaultLocale.label 判定（dev/build 均可靠，不依赖 BASE_URL）。
 import config from 'virtual:starlight/user-config';
 import SiteTitle from 'virtual:starlight/components/SiteTitle';
 import SocialIcons from 'virtual:starlight/components/SocialIcons';
 import AppearanceSelect from 'starlight-theme-large-print/components/AppearanceSelect.astro';
 import TypographyDropdown from 'starlight-theme-large-print/components/TypographyDropdown.astro';
+import LangSelect from './LangSelect.astro';
 
-const isTw = config.locales?.root?.label === '繁體中文';
+// 简繁判定：经 dev 实证（2026-10-12），Starlight 0.42 处理后的 user config 单 root locale
+// 模式下 **不保留 locales 键**（virtual:starlight/user-config 只有 defaultLocale），
+// 原 `config.locales?.root?.label` 判定恒 false——改用 defaultLocale。
+const isTw = config.defaultLocale?.label === '繁體中文';
 const backLabel = isTw ? '返回文庫' : '返回文库';
 // 返回文库指主站（另一 Worker）：简体 → 主站首页；繁体 → 主站 /zh-tw/
 const libHref = isTw ? 'https://www.xianmi.co/zh-tw/' : 'https://www.xianmi.co/';
+
+// 语言切换目标：文章页 slug 双语同名 = 前缀互换；标签/作者页 slug=标签原文天然不对称
+// （routeData.ts hreflang 同口径），切到对侧博客首页。繁体 build 的 pathname 带 /zh-tw
+// 前缀，dev 繁体也跑 /blog/*（base 不设），点击跳对侧 404 属已知 dev 形态。
+const rawPath = Astro.url.pathname;
+const cnPath = rawPath.startsWith('/zh-tw/') ? rawPath.replace(/^\/zh-tw/, '') : rawPath;
+const otherHref = /\/(tags|authors)\//.test(rawPath)
+	? isTw
+		? '/blog/'
+		: '/zh-tw/blog/'
+	: isTw
+		? cnPath
+		: `/zh-tw${cnPath}`;
+
+// 主题控件正体 labels（与主站 preview-tw Header 逐字一致）
+const twTypographyLabels = {
+	trigger: '排版',
+	size: '字號',
+	sizeSteps: ['小', '稍小', '標準', '大', '特大'],
+	spacing: '行距',
+	spacingSteps: ['緊湊', '標準', '寬鬆'],
+	hang: '標點懸掛',
+};
+const twAppearanceLabels = {
+	trigger: '外觀',
+	followSystem: '跟隨系統',
+	light: '淺色',
+	dark: '深色',
+	paperGroup: '紙張色',
+	paperNames: ['白', '米黃', '淡青', '淡紫', '米白', '淡藍', '淺紅', '淺灰', '淺褐', '紅字', '深藍', '墨綠', '深灰', '近黑'],
+};
 ---
 
 <div class="header">
@@ -25,8 +60,14 @@ const libHref = isTw ? 'https://www.xianmi.co/zh-tw/' : 'https://www.xianmi.co/'
 		<div class="sl-flex social-icons">
 			<SocialIcons />
 		</div>
-		<TypographyDropdown />
-		<AppearanceSelect />
+		<TypographyDropdown labels={isTw ? twTypographyLabels : undefined} />
+		<AppearanceSelect labels={isTw ? twAppearanceLabels : undefined} />
+		<LangSelect
+			currentLabel={isTw ? '繁體中文' : '简体中文'}
+			otherLabel={isTw ? '简体中文' : '繁體中文'}
+			otherHref={otherHref}
+			ariaLabel={isTw ? '語言' : '语言'}
+		/>
 	</div>
 </div>
 
@@ -85,6 +126,12 @@ const libHref = isTw ? 'https://www.xianmi.co/zh-tw/' : 'https://www.xianmi.co/'
 				display: grid;
 				grid-template-columns: minmax(0rem, auto) 1fr auto;
 				align-content: center;
+			}
+
+			/* 桌面端只有 2 个可见子项（back-link-mobile 隐藏），不显式钉列的话
+			   right-group 会被自动摆进中间弹性列、控件挤在头部中段——钉死第三列。 */
+			.right-group {
+				grid-column: 3;
 			}
 		}
 	}
