@@ -14,7 +14,7 @@ npm run build:cn # dist/ → /blog/*
 npm run build:tw # dist/zh-tw/ → /zh-tw/blog/*
 ```
 
-简体稿在 `posts/zh-cn/`、繁体稿在 `posts/zh-tw/`（AI 翻译 + 人工校订，禁用 OpenCC 机械转换），双语同名 slug。生产流程与双 prompt 见 [tools/translate-prompt.md](./tools/translate-prompt.md)（desc worker 是内容生产 owner）。工程约定与踩坑见 [AGENTS.md](./AGENTS.md)。
+简体稿在 `posts/zh-cn/`、繁体稿在 `posts/zh-tw/`（AI 翻译 + 人工校订，禁用 OpenCC 机械转换），双语同名 slug。生产流程与双 prompt 见 [tools/translate-prompt.md](./tools/translate-prompt.md)（copy worker 是内容生产 owner）。工程约定与踩坑见 [AGENTS.md](./AGENTS.md)。
 
 ## 许可
 

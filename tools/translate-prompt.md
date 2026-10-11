@@ -1,6 +1,6 @@
 # blog 内容生产双 prompt 草稿（2026-10-12 定案）
 
-> 归属：desc worker 是 blog 内容生产 owner。流程：用户与 LLM 讨论素材 → **desc 成文简体**（Prompt A）→ **AI 翻译繁体**（Prompt B）→ 用户过目 → desc push 触发 CF Builds。
+> 归属：copy worker 是 blog 内容生产 owner。流程：用户与 LLM 讨论素材 → **copy 成文简体**（Prompt A）→ **AI 翻译繁体**（Prompt B）→ 用户过目 → copy push 触发 CF Builds。
 > 红线：**繁体 = AI 翻译 + 人工校订，禁用 OpenCC 机械转换**（OpenCC 是 6 万篇初始语料的规模权宜；blog 每篇几千字，付得起 AI 翻译，且翻译贴合台湾大众文字习惯）。
 > 本文件是复用草稿：每篇生产时整份复制使用，术语护栏随全站语料演进维护。
 

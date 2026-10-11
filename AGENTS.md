@@ -27,9 +27,9 @@
 - `npm run build:cn` / `build:tw`：gen-content → astro build → postbuild 全链。
 - `npm run gen` / `node tools/gen-content.mjs --tw`：只重新生成内容。
 
-## 内容生产（desc worker 是生产 owner）
+## 内容生产（copy worker 是生产 owner）
 
-- **流程（2026-10-12 定案）**：用户与 LLM 讨论素材 → desc 成文简体（Prompt A）→ AI 翻译繁体（Prompt B，术语护栏）→ 用户过目 → desc push 触发 CF Builds。
+- **流程（2026-10-12 定案）**：用户与 LLM 讨论素材 → copy 成文简体（Prompt A）→ AI 翻译繁体（Prompt B，术语护栏）→ 用户过目 → copy push 触发 CF Builds。
 - **红线：繁体 = AI 翻译 + 人工校订，禁用 OpenCC 机械转换**。OpenCC 是 6 万篇初始语料的规模权宜；blog 每篇几千字付得起 AI 翻译，且翻译贴合台湾大众文字习惯（用词/语气/句式在地化）。双 prompt 草稿在 `tools/translate-prompt.md`，每篇复用、护栏随语料演进维护。
 - **目录**：`posts/zh-cn/`（简体成文）、`posts/zh-tw/`（繁体译稿）——两份都是入仓内容文件，build 期不做任何转换；文件名 = slug，双语必须同名（hreflang 前缀互换配对的根基）。
 - **双语配对校验**：`tools/gen-content.mjs` 在简体 build 时强校验——任何简体文缺同名繁体稿 = exit 1（build 红）；繁体孤本只警告。防漂移从「工具保证」改为「纪律 + 校验」。
