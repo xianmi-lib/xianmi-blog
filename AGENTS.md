@@ -50,6 +50,7 @@
 - **dev 下多段 base 404**：dev 若设 `base='/zh-tw'`，`/zh-tw/blog/*` 全 404（纯 Astro repro 无此问题，Starlight 叠加后触发；生产构建正常）。故 dev 恒 base='/'（繁体 dev 在 4334 以 `/blog/*` 预览，与正式站 XIANMI_TW_BASE「dev 不设 base」先例同构）。
 - **dev 内容目录重建须干净重启**：gen 整目录抹除重写会让运行中 dev 的 content store 变空（getCollection 返回 []），须重启 dev（与预览工程软链内容纪律同族）。
 - **标签/作者索引页无简繁 hreflang**：tag slug = 标签原文（站点故事≠站點故事），前缀互换会 404——routeData.ts 与 sitemap 对 /tags//authors/ 跳过配对（文章页 slug=文件名，严格配对不受影响）。这是 AI 翻译路线下 tag URL 的天然不对称，已裁决接受。
+- **Starlight 0.42 单 root locale 处理后 config 无 `locales` 键**（2026-10-12 实测）：`virtual:starlight/user-config` 只保留 `defaultLocale`（+`isMultilingual:false`）——组件里 `config.locales?.root?.label` 判定**恒 false**（dev/build 皆然），简繁判定须用 `config.defaultLocale?.label`（Header 已改，繁体侧 backLabel/labels 曾因此一直错显简体）。
 - `devToolbar.enabled=false`（截图/验收干净，Astro dev toolbar 仅 dev 可见但会进 fullPage 截图）。
 - starlight-blog 的 `navigation` 默认 `header-end` 会覆盖 ThemeSelect——本站 Header 自渲染主题控件，必须显式 `navigation: 'none'`。
 
