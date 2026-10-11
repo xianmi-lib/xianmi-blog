@@ -37,7 +37,7 @@
 
 ## 已知坑（实测）
 
-- **dev 不可简繁双开**：两个 dev 共享 `src/content/docs/blog/` 生成目录，后生成者覆盖前者（内容对、配置错或反之）。验收/开发按语言**串行**：停一个 → 换 gen → 起另一个。
+- **dev 不可简繁双开（硬锁）**：Astro 7 项目级 dev 锁（`.astro/dev.json`）使同工程只能跑一个 dev；外加两 dev 共享 `src/content/docs/blog/` 生成目录的覆盖问题。换语言按序：停当前 dev → `rm .astro/dev.json` → 起另一个（dev:cn/dev:tw 脚本自带 gen）。
 - **dev 下多段 base 404**：dev 若设 `base='/zh-tw'`，`/zh-tw/blog/*` 全 404（纯 Astro repro 无此问题，Starlight 叠加后触发；生产构建正常）。故 dev 恒 base='/'（繁体 dev 在 4334 以 `/blog/*` 预览，与正式站 XIANMI_TW_BASE「dev 不设 base」先例同构）。
 - **dev 内容目录重建须干净重启**：gen 整目录抹除重写会让运行中 dev 的 content store 变空（getCollection 返回 []），须重启 dev（与预览工程软链内容纪律同族）。
 - **标签/作者索引页无简繁 hreflang**：tag slug = 标签原文（站点故事≠站點故事），前缀互换会 404——routeData.ts 与 sitemap 对 /tags//authors/ 跳过配对（文章页 slug=文件名，严格配对不受影响）。这是 AI 翻译路线下 tag URL 的天然不对称，已裁决接受。
