@@ -42,6 +42,8 @@ export default defineConfig({
 				Footer: './src/components/Footer.astro',
 				// /blog/ 路由关原生分页（防与 starlight-blog NextLinks 双渲染，用户拍板）
 				Pagination: './src/components/Pagination.astro',
+				// BlogPosting author Person→Organization（starlight-blog 硬编码无配置口）
+				Head: './src/components/Head.astro',
 			},
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/xianmi-lib/xianmi-blog' }],
 			head: [

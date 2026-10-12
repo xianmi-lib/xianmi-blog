@@ -30,6 +30,7 @@ const links = isTw
 	))}
 </nav>
 <div class="footer-copy">{isTw ? '© 2021–2026 xianmi.co · 顯密文庫博客' : '© 2021–2026 xianmi.co · 显密文库博客'}</div>
+<div class="footer-ai-note">{isTw ? '本站部落格文章由編輯與 AI 協作完成' : '本站博客文章由编辑与 AI 协作完成'}</div>
 
 <style>
 	.footer-links {
@@ -52,5 +53,12 @@ const links = isTw
 		text-align: center;
 		font-size: var(--sl-text-xs);
 		color: var(--sl-color-gray-4);
+	}
+	/* AI 协作透明声明（2026-10-13 预防性对齐 Google 有用内容新规）：弱化置灰，不打扰阅读 */
+	.footer-ai-note {
+		margin-top: 0.25rem;
+		text-align: center;
+		font-size: var(--sl-text-xs);
+		color: var(--sl-color-gray-5);
 	}
 </style>

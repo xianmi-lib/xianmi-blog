@@ -1,0 +1,39 @@
+---
+// 博客工程 Head 覆盖（2026-10-13）：BlogPosting JSON-LD 的 author @type 修正。
+// starlight-blog 的 getStructuredDataAuthor 硬编码 Person（无配置口），本站唯一作者
+// 「显密文库」是机构——预防性对齐 Google 有用内容新规（AI 假人格打击）+主动透明。
+// 插件 middleware 以 default 序注册在 user routeMiddleware **之后**跑（plugins.js
+// applyPluginMiddleware），routeData 层改写时 JSON-LD 尚不存在；故在 Head 渲染前
+//（全部 middleware 已毕）就地改 head 条目。最小改写：只动 BlogPosting 节点 author
+// 数组元素的 @type（Person→Organization），name/url/@id 与其余字段零触碰；
+// 作者索引页的 Person 主体节点不在本单范围。解析失败/形态非预期=原样不动。
+import Default from '@astrojs/starlight/components/Head.astro';
+
+const head = Astro.locals.starlightRoute.head;
+for (const entry of head) {
+	if (
+		entry.tag !== 'script' ||
+		entry.attrs?.type !== 'application/ld+json' ||
+		typeof entry.content !== 'string' ||
+		!entry.content.includes('"author"')
+	) {
+		continue;
+	}
+	try {
+		const data = JSON.parse(entry.content);
+		const graph = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+		for (const node of graph) {
+			if (node?.['@type'] === 'BlogPosting' && Array.isArray(node.author)) {
+				for (const author of node.author) {
+					if (author?.['@type'] === 'Person') author['@type'] = 'Organization';
+				}
+			}
+		}
+		entry.content = JSON.stringify(data);
+	} catch {
+		/* 非预期 JSON/形态：不硬改，保持插件原样 */
+	}
+}
+---
+
+<Default {...Astro.props}><slot /></Default>
