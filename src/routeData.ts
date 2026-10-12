@@ -8,6 +8,11 @@ const SITE = 'https://www.xianmi.co';
 export const onRequest = defineRouteMiddleware((context) => {
 	const { starlightRoute } = context.locals;
 	const path = context.url.pathname;
+	// 站点标题自指博客首页（2026-10-13 用户拍板）：Starlight 默认 siteTitleHref=base+'/'
+	// 落到域根（=文库首页），标题含「博客」应指博客自身首页。按路径前缀派生（与下方
+	// hreflang 同判据，locale 判定同款思路）：dev 与简体 build=/blog/，繁体 build=
+	// /zh-tw/blog/。须对全部路由生效（含 tags/authors），故置于早期 return 之前。
+	starlightRoute.siteTitleHref = path.startsWith('/zh-tw/') ? '/zh-tw/blog/' : '/blog/';
 	// 标签/作者索引页简繁 URL 天然不对称（slug=标签原文：站点故事≠站點故事），
 	// 前缀互换会得到 404——这类页跳过 hreflang（文章页 slug=文件名，简繁严格配对不受影响）。
 	if (/\/(tags|authors)\//.test(path)) return;
