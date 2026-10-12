@@ -1,10 +1,12 @@
 ---
 // 博客页脚：显密文库署名 + 主站链接（博客不复制主站元页面，一律绝对链）。
 // cooler-credit 赞助卡后补（立项单注明可后补），届时在此叠加。
+// 简繁判定用 defaultLocale.label（Starlight 0.42 单 root locale 不保留 locales 键，
+// config.locales?.root?.label 恒 false——同 Header 已修坑，见 AGENTS 已知坑）。
 import Default from '@astrojs/starlight/components/Footer.astro';
 import config from 'virtual:starlight/user-config';
 
-const isTw = config.locales?.root?.label === '繁體中文';
+const isTw = config.defaultLocale?.label === '繁體中文';
 const links = isTw
 	? [
 			['文庫首頁', 'https://www.xianmi.co/zh-tw/'],

@@ -49,6 +49,7 @@
 - **dev 不可简繁双开（硬锁）**：Astro 7 项目级 dev 锁（`.astro/dev.json`）使同工程只能跑一个 dev；外加两 dev 共享 `src/content/docs/blog/` 生成目录的覆盖问题。换语言按序：停当前 dev → `rm .astro/dev.json` → 起另一个（dev:cn/dev:tw 脚本自带 gen）。
 - **dev 下多段 base 404**：dev 若设 `base='/zh-tw'`，`/zh-tw/blog/*` 全 404（纯 Astro repro 无此问题，Starlight 叠加后触发；生产构建正常）。故 dev 恒 base='/'（繁体 dev 在 4334 以 `/blog/*` 预览，与正式站 XIANMI_TW_BASE「dev 不设 base」先例同构）。
 - **dev 内容目录重建须干净重启**：gen 整目录抹除重写会让运行中 dev 的 content store 变空（getCollection 返回 []），须重启 dev（与预览工程软链内容纪律同族）。
+- **文章页底部分页双份修复（2026-10-13 用户拍板）**：Starlight 原生 Footer 内部渲染 `<Pagination>`（virtual:starlight/components/Pagination 取件，**components 覆盖对原生 Footer 内部的它同样生效**）——博客覆盖 `src/components/Pagination.astro`：/blog/ 路由（含 /zh-tw 前缀）渲染空委托默认件，404 等照常。starlight-blog 无官方关闭开关（README/overrides/middleware 均无），routeData 置空 prev/next 仍会留空 div（Pagination.astro 外壳无条件渲染），覆盖件是唯一净除法。同 commit 顺手修 Footer 同款 isTw 恒 false 漏网（locales→defaultLocale，与 Header 同坑）。
 - **标签/作者索引页无简繁 hreflang**：tag slug = 标签原文（站点故事≠站點故事），前缀互换会 404——routeData.ts 与 sitemap 对 /tags//authors/ 跳过配对（文章页 slug=文件名，严格配对不受影响）。这是 AI 翻译路线下 tag URL 的天然不对称，已裁决接受。
 - **Starlight 0.42 单 root locale 处理后 config 无 `locales` 键**（2026-10-12 实测）：`virtual:starlight/user-config` 只保留 `defaultLocale`（+`isMultilingual:false`）——组件里 `config.locales?.root?.label` 判定**恒 false**（dev/build 皆然），简繁判定须用 `config.defaultLocale?.label`（Header 已改，繁体侧 backLabel/labels 曾因此一直错显简体）。
 - `devToolbar.enabled=false`（截图/验收干净，Astro dev toolbar 仅 dev 可见但会进 fullPage 截图）。

@@ -1,0 +1,14 @@
+---
+// 博客工程 Pagination 覆盖（2026-10-13 用户拍板）：/blog/ 路由关闭 Starlight 原生
+// 分页——starlight-blog 自渲染 NextLinks（.sl-blog-pagination，按日期语义正确的
+// 上一篇/下一篇），原生 .pagination-links 按 docs 集合顺序算邻页，文章页双份渲染。
+// Starlight 原生 Footer 经 virtual:starlight/components/Pagination 取件，覆盖即生效；
+// 非 /blog/ 路由（404 等）照常委托默认件。
+import Default from '@astrojs/starlight/components/Pagination.astro';
+
+const path = Astro.url.pathname;
+// dev 繁体也跑 /blog/*（base 不设）；繁体构建产物路径带 /zh-tw 前缀，两端都罩。
+const isBlog = path.startsWith('/blog/') || path.startsWith('/zh-tw/blog/');
+---
+
+{!isBlog && <Default {...Astro.props}><slot /></Default>}
