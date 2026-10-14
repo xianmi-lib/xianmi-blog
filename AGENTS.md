@@ -62,3 +62,4 @@
 - GitHub 仓已建已推（`xianmi-lib/xianmi-blog`，公开仓）。
 - og:image 暂借主站 `/og.png`；博客专有 og 图可后补。cooler-credit 赞助卡可后补。
 - ~~blog worker 的 404 落地页~~（2026-10-12 解决：`not_found_handling: "404-page"`，未命中 /blog/* 路径回根 404.html 简体页）。
+- **dev 常驻托管（2026-10-14）**：4333 简体 dev 由 systemd --user 托管（`xianmi-blog.service`，ExecStart=`npm run dev:cn`，ExecStartPre 清 .astro/dev.json 锁，MemoryMax=6G，PATH 含 nvm bin）；启停 `systemctl --user {start|stop|restart} xianmi-blog`，日志 `journalctl --user -u xianmi-blog -f`；重活窗口仍需 stop、出完 start。dev:tw（4334）临时实例照旧手跑。
