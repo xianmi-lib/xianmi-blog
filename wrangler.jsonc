@@ -2,11 +2,18 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "xianmi-blog",
 	"compatibility_date": "2026-10-12",
+	// 两段式发布配套（2026-10-15 用户拍板）：自定义 Worker 入口——*.workers.dev（版本预览 URL）注入
+	// X-Robots-Tag: noindex；线上 xianmi.co/blog* 响应不受影响（worker 条件只匹配 workers.dev）
+	"main": "worker/cf-entry.mjs",
 	"assets": {
 		"directory": "./dist",
+		// main 存在时 worker 经 ASSETS binding 取资产（binding 名与 cf-entry.mjs 的 env.ASSETS 对应）
+		"binding": "ASSETS",
 		// 照正式站口径：未命中资产回退 dist 根的 404.html（简体 build 产物；繁体 404 无独立槽位，已裁决接受）
 		"not_found_handling": "404-page"
 	},
+	// 版本预览 URL 开关（两段式发布配套，2026-10-15）：versions upload 才有 <prefix>-xianmi-blog.<sub>.workers.dev
+	"preview_urls": true,
 	// 生产路由（2026-10-12 挂接）：星号形态兼捕裸路径（/starlight 先例）；「更具体者优先」
 	// 压过 cn 的 /* 与 tw 的 /zh-tw/*，主站零改动；裸域 naked→www 301 在路由前生效
 	"routes": [
