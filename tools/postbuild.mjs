@@ -2,7 +2,7 @@
 // ① sitemap 收进 blog/ 前缀目录——@astrojs/sitemap 产物落 dist 根（文件位置不按 base），
 //    而 blog worker 只挂 /blog/* 与 /zh-tw/blog/*，sitemap 必须在前缀内才可 served。
 //    sitemap-index 内引用 sitemap-0.xml 为相对文件名，移动后仍互相可达。
-// ② 繁体：dist 整体包裹进 dist/zh-tw/（与正式 xianmi-tw postbuild 先例一致；
+// ② 繁体：dist 整体包裹进 dist/zh-tw/（与主站繁体 postbuild 先例一致；
 //    简体无包裹，产物根即 /blog/* 镜像）。
 import { readdir, readFile, writeFile, mkdir, rename, rm } from 'node:fs/promises';
 

@@ -1,11 +1,11 @@
 # AGENTS.md — xianmi-blog
 
-显密文库官方博客工程（2026-10-12 立项，preview 域原型）。共享约定见 `~/projects/xianmi/AGENTS.md`（meta 仓总纲，尤其 GitHub 双 org 可见性规则：本仓属公开 org `xianmi-lib`）。
+显密文库官方博客工程（2026-10-12 立项）。本仓 public，内容零私有细节（无内部角色名/运维流程/账号标识）；工程级约定与踩坑见本文，完整体系约定在内部总纲。
 
 ## 定位与 URL 契约（已定，勿改）
 
 - 独立 Astro + Starlight 站，独立 Worker 挂载：简体 `xianmi.co/blog/*`、繁体 `xianmi.co/zh-tw/blog/*`（先例 = `xianmi.co/starlight*` 挂主题 demo）。
-- 发布链路（**已上线 2026-10-12**）：push main → CF Workers Builds 自动 build+deploy，不进主站攒批；配置与纪律见下「部署」节。
+- 发布链路（**已上线 2026-10-12**）：push main → CF Workers Builds 自动 build+deploy，独立发布节奏；配置与纪律见下「部署」节。
 - **简繁方案 b**：单仓双 build。`XIANMI_BLOG_TW=1` 切繁体（内容/字体/语言），`XIANMI_BLOG_BASE=/zh-tw` 只在繁体**构建**时设（dev 恒 base='/'）。
 
 ## 技术栈与关键裁决
@@ -23,23 +23,23 @@
 
 ## 常用命令
 
-- `npm run dev:cn` / `dev:tw`：dev 端口 **4333（简）/ 4334（繁）**（4331/4332 是预览对，勿占）。
+- `npm run dev:cn` / `dev:tw`：dev 端口 **4333（简）/ 4334（繁）**（内部环境约定，勿改）。
 - `npm run build:cn` / `build:tw`：gen-content → astro build → postbuild 全链。
 - `npm run gen` / `node tools/gen-content.mjs --tw`：只重新生成内容。
 - `npm run build`：合并构建（`tools/build-all.mjs`）——build:cn → 暂存 → build:tw → 合并出单一 `dist/`（简体 `dist/blog/*` + 繁体 `dist/zh-tw/blog/*` + 根 `404.html`）。这是 CF Builds 的 build command。
 
-## 部署（publish 域）
+## 部署
 
 - **产物形态**：单 Worker `xianmi-blog`，静态 assets = 合并 `dist/`（248 文件量级）；`wrangler.jsonc` 在本仓，`not_found_handling: "404-page"`（根 `404.html` 来自简体 build；繁体 404 无独立槽位，已裁决接受）。
 - **路由（2026-10-12 已挂）**：`www.xianmi.co/blog*`、`xianmi.co/blog*`、`www.xianmi.co/zh-tw/blog*`、`xianmi.co/zh-tw/blog*`（星号形态兼捕裸路径；「更具体者优先」压过主站 /* 与 /zh-tw/*，主站零改动；裸域 naked→www 301 在路由前生效）。
-- **首发**：2026-10-12 publish 手动 `npx wrangler deploy`（Version ID 515a4538），线上验证全绿（证据 `~/xianmi-evidence/blog-deploy-20261012/`）。
-- **两段式发布配套两件（2026-10-15 用户拍板，与主站同批）**：①`wrangler.jsonc` 加 `"preview_urls": true`（versions upload 的版本预览 URL 开关）；②自定义 worker 入口 `worker/cf-entry.mjs`（assets 配置同步加 `"binding": "ASSETS"`）——默认全走 `env.ASSETS.fetch`，仅 `*.workers.dev` Host 注入 `X-Robots-Tag: noindex`（防版本预览 URL 收录；线上 xianmi.co/blog* 必须可收录，条件只匹配 workers.dev）。⚠️ 验证坑：wrangler dev --local 对 200 资产响应有直通快路径（不经过 worker 包层，noindex 不体现）——以 node 直调真实模块 stub 烟为准（cf-entry 三 Host 用例全过）；www 404/not_found_handling 路径正常过 worker。
-- **CF Workers Builds（2026-10-12 接通，唯一部署通道）**：push 到 `main` 且触及 watch paths 即云端 build+deploy（**本地 `npx wrangler deploy` 退役，禁双轨**）。配置：root directory=`/`（仓库根，已实证可用）、build=`npm run build`、deploy=`npx wrangler deploy`、branch=`main`、previews **开**（2026-10-15 档案订正：live 配置 previews_enabled=true，deploy=`npx wrangler preview`，previews token 复用 `starlight-ai-actions build token` 1d0f9cd9——原记「关」系档案误差，以 live 为准，main 裁定）、构建缓存开；trigger `6b34d0ce-1e6b-4da4-9a2c-0ffcb4ed3641`（external_script_id=worker id `eb839681b4994cb795db9e2d30edae0a`），path_includes=`posts/*`、`src/*`、`tools/*`、`astro.config.mjs`、`package.json`、`package-lock.json`、`wrangler.jsonc`（文档/AGENTS 改动不触发）；build token=`xianmi-blog build token`（UUID `e20a601e-9c0b-4d7e-b987-338857efb217`，dashboard 向导铸，值不落文件）。**只保留一条构建配置**——改 Builds 配置后必查 `cf builds triggers list --external-script-id eb839681b4994cb795db9e2d30edae0a` 仍只有一条（10-05 主题仓双配置事故教训）。
+- **首发**：2026-10-12 手动 wrangler deploy，线上验证全绿（版本号与证据留内部档）。
+- **两段式发布配套两件（2026-10-15 定稿）**：①`wrangler.jsonc` 加 `"preview_urls": true`（versions upload 的版本预览 URL 开关）；②自定义 worker 入口 `worker/cf-entry.mjs`（assets 配置同步加 `"binding": "ASSETS"`）——默认全走 `env.ASSETS.fetch`，仅 `*.workers.dev` Host 注入 `X-Robots-Tag: noindex`（防版本预览 URL 收录；线上 xianmi.co/blog* 必须可收录，条件只匹配 workers.dev）。⚠️ 验证坑：wrangler dev --local 对 200 资产响应有直通快路径（不经过 worker 包层，noindex 不体现）——以 node 直调真实模块 stub 烟为准（cf-entry 三 Host 用例全过）；www 404/not_found_handling 路径正常过 worker。
+- **CF Workers Builds（2026-10-12 接通，唯一部署通道）**：push 到 `main` 且触及 watch paths 即云端 build+deploy（**本地 `npx wrangler deploy` 退役，禁双轨**）。配置：root directory=`/`（仓库根）、build=`npm run build`、branch=`main`、previews **开**（2026-10-15 订正为 live 实况）、构建缓存开；watch paths=`posts/*`、`src/*`、`tools/*`、`astro.config.mjs`、`package.json`、`package-lock.json`、`wrangler.jsonc`（文档/AGENTS 改动不触发）。**只保留一条构建配置**——改 Builds 配置后必查 triggers 列表仍只有一条（双配置事故教训）；token、触发器 ID 等账号级细节留内部档。
 - **手动重触（免 push）**：deploy hook `cf builds deploy-hooks trigger 09375596-e43d-4a51-a170-475ed600b301`（名 `manual-retrigger`，branch=main）；`cf builds create` 有 12002 缺陷勿用。云端 build+deploy 全程约 36 秒（2026-10-12 实测，产物 248 文件）。
 
-## 内容生产（copy worker 是生产 owner）
+## 内容生产
 
-- **流程（2026-10-12 定案）**：用户与 LLM 讨论素材 → copy 成文简体（Prompt A）→ AI 翻译繁体（Prompt B，术语护栏）→ 用户过目 → copy push 触发 CF Builds。
+- **流程（2026-10-12 定案）**：讨论素材 → LLM 成文简体（Prompt A）→ AI 翻译繁体（Prompt B，术语护栏）→ 人工过目 → push 触发 CF Builds。
 - **红线：繁体 = AI 翻译 + 人工校订，禁用 OpenCC 机械转换**。OpenCC 是 6 万篇初始语料的规模权宜；blog 每篇几千字付得起 AI 翻译，且翻译贴合台湾大众文字习惯（用词/语气/句式在地化）。双 prompt 草稿在 `tools/translate-prompt.md`，每篇复用、护栏随语料演进维护。
 - **目录**：`posts/zh-cn/`（简体成文）、`posts/zh-tw/`（繁体译稿）——两份都是入仓内容文件，build 期不做任何转换；文件名 = slug，双语必须同名（hreflang 前缀互换配对的根基）。
 - **双语配对校验**：`tools/gen-content.mjs` 在简体 build 时强校验——任何简体文缺同名繁体稿 = exit 1（build 红）；繁体孤本只警告。防漂移从「工具保证」改为「纪律 + 校验」。
@@ -63,4 +63,4 @@
 - GitHub 仓已建已推（`xianmi-lib/xianmi-blog`，公开仓）。
 - og:image 暂借主站 `/og.png`；博客专有 og 图可后补。cooler-credit 赞助卡可后补。
 - ~~blog worker 的 404 落地页~~（2026-10-12 解决：`not_found_handling: "404-page"`，未命中 /blog/* 路径回根 404.html 简体页）。
-- **dev 常驻托管（2026-10-14）**：4333 简体 dev 由 systemd --user 托管（`xianmi-blog.service`，ExecStart=`npm run dev:cn`，ExecStartPre 清 .astro/dev.json 锁，MemoryMax=6G，PATH 含 nvm bin）；启停 `systemctl --user {start|stop|restart} xianmi-blog`，日志 `journalctl --user -u xianmi-blog -f`；重活窗口仍需 stop、出完 start。dev:tw（4334）临时实例照旧手跑。
+- **dev 常驻托管（2026-10-14）**：4333 简体 dev 由 systemd --user 托管（重启可愈静默死亡；启停 `systemctl --user {start|stop|restart}`，日志 `journalctl --user -u <服务名> -f`；unit 细节留内部档）；重活窗口仍需 stop、出完 start。dev:tw（4334）临时实例照旧手跑。

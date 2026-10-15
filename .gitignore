@@ -5,3 +5,5 @@ dist-wrapped/
 # gen-content.mjs 生成物（简体直拷 / 繁体 OpenCC s2tw），源在 posts/zh-cn/
 src/content/docs/blog/
 *.log
+.wrangler/
+.dev.vars

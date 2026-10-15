@@ -1,5 +1,5 @@
 // 简繁 hreflang head 注入（slug 双语一致，URL = 前缀互换；x-default 指繁体版，
-// 与主站 2026-09-28 裁决一致）。本工程无 goodweb 那套 pXX/lastmod/dupmap 逻辑，
+// 与主站 2026-09-28 裁决一致）。本工程无主站那套 pXX/lastmod/dupmap 逻辑，
 // 只做双语配对一件事——将来如需扩展（canonical/JSON-LD）在此叠加。
 import { defineRouteMiddleware } from '@astrojs/starlight/route-data';
 
