@@ -10,7 +10,7 @@
 
 ## 技术栈与关键裁决
 
-- Astro 7 + Starlight 0.42 + **starlight-blog 0.30** + **starlight-theme-large-print 0.5.1（npm 版，dogfood）**。
+- Astro 7 + Starlight 0.42 + **starlight-blog 0.30** + **starlight-theme-large-print 0.5.2（npm 版，dogfood）**。
 - **不装 starlight-ai-actions**（用户裁决：博客是现代白话原创，无 AI 讨论需求，保持轻）。
 - 无 routeData 那套 pXX 逻辑；`src/routeData.ts` 只做简繁 hreflang head 注入。
 
