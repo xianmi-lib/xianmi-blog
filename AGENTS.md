@@ -35,7 +35,7 @@
 - **首发**：2026-10-12 手动 wrangler deploy，线上验证全绿（版本号与证据留内部档）。
 - **两段式发布配套两件（2026-10-15 定稿）**：①`wrangler.jsonc` 加 `"preview_urls": true`（versions upload 的版本预览 URL 开关）；②自定义 worker 入口 `worker/cf-entry.mjs`（assets 配置同步加 `"binding": "ASSETS"`）——默认全走 `env.ASSETS.fetch`，仅 `*.workers.dev` Host 注入 `X-Robots-Tag: noindex`（防版本预览 URL 收录；线上 xianmi.co/blog* 必须可收录，条件只匹配 workers.dev）。⚠️ 验证坑：wrangler dev --local 对 200 资产响应有直通快路径（不经过 worker 包层，noindex 不体现）——以 node 直调真实模块 stub 烟为准（cf-entry 三 Host 用例全过）；www 404/not_found_handling 路径正常过 worker。
 - **CF Workers Builds（2026-10-12 接通，唯一部署通道）**：push 到 `main` 且触及 watch paths 即云端 build+deploy（**本地 `npx wrangler deploy` 退役，禁双轨**）。配置：root directory=`/`（仓库根）、build=`npm run build`、branch=`main`、previews **开**（2026-10-15 订正为 live 实况）、构建缓存开；watch paths=`posts/*`、`src/*`、`tools/*`、`astro.config.mjs`、`package.json`、`package-lock.json`、`wrangler.jsonc`（文档/AGENTS 改动不触发）。**只保留一条构建配置**——改 Builds 配置后必查 triggers 列表仍只有一条（双配置事故教训）；token、触发器 ID 等账号级细节留内部档。
-- **手动重触（免 push）**：deploy hook `cf builds deploy-hooks trigger 09375596-e43d-4a51-a170-475ed600b301`（名 `manual-retrigger`，branch=main）；`cf builds create` 有 12002 缺陷勿用。云端 build+deploy 全程约 36 秒（2026-10-12 实测，产物 248 文件）。
+- **手动重触（免 push）**：deploy hook（`cf builds deploy-hooks trigger <hook-id>`，名 `manual-retrigger`，branch=main；hook UUID 属账号级细节留内部档）；`cf builds create` 有缺陷勿用。云端 build+deploy 全程约 36 秒（2026-10-12 实测，产物 248 文件）。
 
 ## 内容生产
 
